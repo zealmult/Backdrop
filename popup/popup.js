@@ -1,4 +1,60 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  // Translations
+  const i18n = {
+    en: {
+      title: "Backdrop Settings",
+      appName: "Backdrop",
+      bgType: "Background Type",
+      typeNone: "None",
+      typeColor: "Color",
+      typeImage: "Image",
+      color: "Color",
+      tabLocal: "Local File",
+      tabUrl: "URL",
+      dropText: "Click or Drop image here",
+      opacity: "Opacity",
+      blur: "Blur",
+      fixed: "Fixed Position",
+      sizeCover: "Cover",
+      sizeContain: "Contain",
+      sizeAuto: "Auto",
+      repeat: "Repeat",
+      reset: "Reset",
+      save: "Save",
+      saved: "Saved!",
+      resetMsg: "Reset!",
+      error: "Error saving!",
+      noTab: "No Active Tab",
+      invalidUrl: "Invalid URL"
+    },
+    zh: {
+      title: "Backdrop 设置",
+      appName: "Backdrop",
+      bgType: "背景类型",
+      typeNone: "无",
+      typeColor: "纯色",
+      typeImage: "图片",
+      color: "颜色",
+      tabLocal: "本地文件",
+      tabUrl: "链接",
+      dropText: "点击或拖拽图片到此处",
+      opacity: "不透明度",
+      blur: "模糊度",
+      fixed: "固定背景",
+      sizeCover: "覆盖 (Cover)",
+      sizeContain: "包含 (Contain)",
+      sizeAuto: "自动 (Auto)",
+      repeat: "平铺",
+      reset: "重置",
+      save: "保存",
+      saved: "已保存!",
+      resetMsg: "已重置!",
+      error: "保存失败!",
+      noTab: "无活动标签页",
+      invalidUrl: "无效的链接"
+    }
+  };
+
   // Elements
   const els = {
     domainBadge: document.getElementById('current-domain'),
@@ -16,11 +72,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     fileInfo: document.getElementById('file-info'),
     fileName: document.querySelector('.filename'),
     removeFileBtn: document.getElementById('remove-file'),
+    
+    // Preview
     imagePreview: document.getElementById('image-preview'),
+    imagePreviewBg: document.getElementById('image-preview-bg'),
+    
     opacity: document.getElementById('opacity'),
     opacityVal: document.getElementById('opacity-val'),
     blur: document.getElementById('blur'),
     blurVal: document.getElementById('blur-val'),
+    blurControl: document.getElementById('blur-control'),
     bgFixed: document.getElementById('bg-fixed'),
     bgSize: document.getElementById('bg-size'),
     bgRepeat: document.getElementById('bg-repeat'),
@@ -33,8 +94,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // State
   let currentDomain = '';
   let currentImageBase64 = null;
+  let lang = 'en';
 
   // Init
+  initI18n();
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab && tab.url) {
     try {
@@ -43,11 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       els.domainBadge.textContent = currentDomain;
       loadSettings(currentDomain);
     } catch (e) {
-      els.domainBadge.textContent = 'Invalid URL';
+      els.domainBadge.textContent = t('invalidUrl');
       disableAll();
     }
   } else {
-    els.domainBadge.textContent = 'No Active Tab';
+    els.domainBadge.textContent = t('noTab');
     disableAll();
   }
 
@@ -69,6 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       els.tabContents.forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      updatePreview();
     });
   });
 
@@ -90,14 +154,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   els.removeFileBtn.addEventListener('click', clearFile);
 
   // Sliders
-  els.opacity.addEventListener('input', (e) => els.opacityVal.textContent = `${e.target.value}%`);
-  els.blur.addEventListener('input', (e) => els.blurVal.textContent = `${e.target.value}px`);
+  els.opacity.addEventListener('input', (e) => {
+    els.opacityVal.textContent = `${e.target.value}%`;
+    updatePreview(); // Opacity affects container or overlay? For now preview just shows image.
+    // Actually opacity is for the whole layer.
+  });
+  els.blur.addEventListener('input', (e) => {
+    els.blurVal.textContent = `${e.target.value}px`;
+    updatePreview();
+  });
 
   // URL Preview
   els.imageUrl.addEventListener('input', (e) => {
-    if (e.target.value) {
-      els.imagePreview.style.backgroundImage = `url('${e.target.value}')`;
-    }
+    updatePreview();
   });
 
   // Actions
@@ -105,12 +174,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   els.resetBtn.addEventListener('click', resetSettings);
 
   // Functions
+  function initI18n() {
+    const browserLang = navigator.language || navigator.userLanguage; 
+    if (browserLang.toLowerCase().startsWith('zh')) {
+      lang = 'zh';
+    } else {
+      lang = 'en';
+    }
+    
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (i18n[lang][key]) {
+        el.textContent = i18n[lang][key];
+      }
+    });
+  }
+
+  function t(key) {
+    return i18n[lang][key] || key;
+  }
 
   function disableAll() {
     document.querySelector('main').style.opacity = '0.5';
     document.querySelector('main').style.pointerEvents = 'none';
     els.saveBtn.disabled = true;
     els.resetBtn.disabled = true;
+  }
+
+  function updatePreview() {
+    // 1. Image
+    let imageUrl = '';
+    const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+    
+    if (activeTab === 'url') {
+       if (els.imageUrl.value) {
+         imageUrl = `url('${els.imageUrl.value}')`;
+       }
+    } else {
+       if (currentImageBase64) {
+         imageUrl = `url('${currentImageBase64}')`;
+       }
+    }
+    els.imagePreviewBg.style.backgroundImage = imageUrl;
+
+    // 2. Blur
+    const blur = els.blur.value;
+    els.imagePreviewBg.style.filter = `blur(${blur}px)`;
+    els.imagePreviewBg.style.transform = 'scale(1.08)';
   }
 
   async function loadSettings(domain) {
@@ -130,16 +240,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (settings.value && settings.value.startsWith('data:')) {
         // Local file
         currentImageBase64 = settings.value;
-        els.imagePreview.style.backgroundImage = `url('${currentImageBase64}')`;
-        els.tabBtns[1].click(); // Switch to local tab
+        // Update UI state for local file
+        els.tabBtns[0].click(); 
         els.dropArea.classList.add('hidden');
         els.fileInfo.classList.remove('hidden');
-        els.fileName.textContent = 'Saved Image';
+        els.fileName.textContent = t('saved'); 
       } else {
         // URL
         els.imageUrl.value = settings.value || '';
-        if (settings.value) els.imagePreview.style.backgroundImage = `url('${settings.value}')`;
-        els.tabBtns[0].click(); // Switch to URL tab
+        els.tabBtns[1].click(); 
       }
     }
 
@@ -154,6 +263,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       els.bgSize.value = settings.style.size || 'cover';
       els.bgRepeat.checked = settings.style.repeat;
     }
+    
+    // Trigger preview update
+    updatePreview();
   }
 
   function updateUI(type) {
@@ -161,14 +273,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     els.sectionImage.classList.add('hidden');
     els.sectionStyles.classList.add('hidden');
     els.imageOptions.classList.add('hidden');
+    els.blurControl.classList.add('hidden'); // Hide blur by default
 
     if (type === 'color') {
       els.sectionColor.classList.remove('hidden');
       els.sectionStyles.classList.remove('hidden');
+      // Blur hidden for color
     } else if (type === 'image') {
       els.sectionImage.classList.remove('hidden');
       els.sectionStyles.classList.remove('hidden');
       els.imageOptions.classList.remove('hidden');
+      els.blurControl.classList.remove('hidden'); // Show blur for image
+      updatePreview(); // Update preview when showing image section
     }
   }
 
@@ -184,10 +300,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       currentImageBase64 = e.target.result;
-      els.imagePreview.style.backgroundImage = `url('${currentImageBase64}')`;
       els.dropArea.classList.add('hidden');
       els.fileInfo.classList.remove('hidden');
       els.fileName.textContent = file.name;
+      updatePreview();
     };
     reader.readAsDataURL(file);
   }
@@ -197,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     els.fileInput.value = '';
     els.dropArea.classList.remove('hidden');
     els.fileInfo.classList.add('hidden');
-    els.imagePreview.style.backgroundImage = '';
+    updatePreview();
   }
 
   async function saveSettings() {
@@ -207,10 +323,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (type === 'color') {
       value = els.colorPicker.value;
     } else if (type === 'image') {
-      // Determine if we use URL or Local
-      // If we are on URL tab and have a value, use it. 
-      // If we are on Local tab (or URL is empty) and have base64, use base64?
-      // Better: check which tab is active.
       const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
       if (activeTab === 'url') {
         value = els.imageUrl.value;
@@ -222,8 +334,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settings = {
       type,
       value,
-      opacity: els.opacity.value,
-      blur: els.blur.value,
+      opacity: parseInt(els.opacity.value, 10),
+      blur: parseInt(els.blur.value, 10),
       style: {
         fixed: els.bgFixed.checked,
         size: els.bgSize.value,
@@ -245,9 +357,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Content script might not be ready', err);
       }
 
-      showStatus('Saved!');
+      showStatus(t('saved'));
     } catch (err) {
-      showStatus('Error saving!');
+      showStatus(t('error'));
       console.error(err);
     }
   }
@@ -266,7 +378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tab) {
       chrome.tabs.sendMessage(tab.id, { action: 'updateBackground', settings: { type: 'none' } });
     }
-    showStatus('Reset!');
+    showStatus(t('resetMsg'));
   }
 
   function showStatus(msg) {

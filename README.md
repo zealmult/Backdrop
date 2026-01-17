@@ -6,7 +6,8 @@ Backdrop is an open-source browser extension that allows you to set custom backg
 
 - **Custom Backgrounds**: Set a background image (URL or local file) or a solid color for any domain.
 - **Per-Site Settings**: Configurations are saved independently for each website.
-- **Style Controls**: Adjust opacity, blur, and fixed/scroll behavior.
+- **Style Controls**: Adjust opacity, blur (image mode only), and fixed/scroll behavior.
+- **i18n Support**: Automatically switches between English and Chinese based on browser language.
 - **Privacy Focused**: No tracking, no ads, no internet permissions required for core functionality (images are stored locally).
 
 ## Installation
@@ -31,8 +32,8 @@ Backdrop is an open-source browser extension that allows you to set custom backg
 2.  Click the Backdrop extension icon.
 3.  Choose **Color** or **Image**.
     *   **Color**: Pick a solid color.
-    *   **Image**: Paste an image URL or drop a local image file.
-4.  Adjust **Opacity** and **Blur** to your liking.
+    *   **Image**: Drag & drop a local file (default) or paste an image URL.
+4.  Adjust **Opacity** and **Blur** (for images) to your liking.
 5.  Click **Save**.
 
 ## License

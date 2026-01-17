@@ -72,6 +72,20 @@ label {
   color: var(--text-secondary);
 }
 
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.val-badge {
+  font-size: 11px;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
 /* Segmented Control */
 .segmented-control {
   display: flex;
@@ -136,6 +150,16 @@ select:focus {
 .color-input-wrapper {
   display: flex;
   gap: 8px;
+}
+
+.color-input-wrapper.small input[type="text"] {
+  padding: 4px 8px;
+  height: 28px;
+}
+
+.color-input-wrapper.small input[type="color"] {
+  width: 28px;
+  height: 28px;
 }
 
 input[type="color"] {
@@ -220,10 +244,18 @@ input[type="color"]::-webkit-color-swatch {
   height: 100px;
   background-color: #f3f4f6;
   border-radius: var(--radius);
-  background-size: cover;
-  background-position: center;
   border: 1px solid var(--border-color);
   margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-preview-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform, filter;
 }
 
 /* Sliders */
@@ -233,6 +265,7 @@ input[type="range"] {
   background: #e5e7eb;
   border-radius: 3px;
   -webkit-appearance: none;
+  margin-top: 6px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -248,10 +281,16 @@ input[type="range"]::-webkit-slider-thumb {
 /* Footer */
 footer {
   display: flex;
+  flex-direction: column;
   gap: 12px;
   margin-top: 8px;
   padding-top: 16px;
   border-top: 1px solid var(--border-color);
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
 }
 
 button {
@@ -293,6 +332,23 @@ button {
   flex: 0;
 }
 
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 12px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.github-link:hover {
+  opacity: 1;
+  color: var(--text-color);
+}
+
 #file-info {
   display: flex;
   justify-content: space-between;
@@ -312,7 +368,7 @@ button {
 
 .status-msg {
   position: fixed;
-  bottom: 60px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.8);

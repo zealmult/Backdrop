@@ -69,30 +69,24 @@
       height: '100%',
       transition: 'background 0.3s ease, opacity 0.3s ease',
       opacity: (settings.opacity / 100).toString(),
-      filter: `blur(${settings.blur}px)`,
-      transform: 'scale(1.05)', // Prevent blur edge artifacts
+      position: 'relative'
     };
 
     if (settings.type === 'color') {
       style.backgroundColor = settings.value;
       style.backgroundImage = 'none';
+      style.filter = 'none';
+      style.transform = 'none';
     } else if (settings.type === 'image') {
       style.backgroundColor = 'transparent';
       style.backgroundImage = `url("${settings.value}")`;
+      style.filter = `blur(${settings.blur}px)`;
+      style.transform = 'scale(1.05)'; // Prevent blur edge artifacts
       
       if (settings.style) {
         style.backgroundPosition = 'center center';
         style.backgroundSize = settings.style.size || 'cover';
         style.backgroundRepeat = settings.style.repeat ? 'repeat' : 'no-repeat';
-        
-        // Note: The root is fixed, so the background inside is relative to viewport already.
-        // If user wants "scroll" (background moves with content), we need to change root position?
-        // Actually, if root is fixed, background is fixed.
-        // If user wants "scroll", we should set root to absolute and height to full document height?
-        // But performance-wise, fixed background is better.
-        // Let's implement 'fixed' vs 'scroll' by changing background-attachment?
-        // Since the container is fixed, background-attachment: scroll means it moves with the container (which doesn't move).
-        // If we want it to scroll with page, the container must be absolute.
         
         if (settings.style.fixed) {
            root.style.position = 'fixed';
