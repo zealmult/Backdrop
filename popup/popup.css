@@ -164,6 +164,7 @@ select:focus {
 
 input[type="color"] {
   -webkit-appearance: none;
+  appearance: none;
   border: none;
   width: 32px;
   height: 32px;
@@ -265,6 +266,7 @@ input[type="range"] {
   background: #e5e7eb;
   border-radius: 3px;
   -webkit-appearance: none;
+  appearance: none;
   margin-top: 6px;
 }
 
