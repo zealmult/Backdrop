@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backdrop Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Backdrop</h1>
+      <span id="current-domain" class="domain-badge">...</span>
+    </header>
+
+    <main>
+      <div class="control-group">
+        <label>Background Type</label>
+        <div class="segmented-control">
+          <input type="radio" name="bgType" value="none" id="type-none" checked>
+          <label for="type-none">None</label>
+          
+          <input type="radio" name="bgType" value="color" id="type-color">
+          <label for="type-color">Color</label>
+          
+          <input type="radio" name="bgType" value="image" id="type-image">
+          <label for="type-image">Image</label>
+        </div>
+      </div>
+
+      <!-- Color Section -->
+      <div id="section-color" class="section hidden">
+        <div class="control-group">
+          <label for="color-picker">Color</label>
+          <div class="color-input-wrapper">
+            <input type="color" id="color-picker" value="#ffffff">
+            <input type="text" id="color-text" value="#ffffff">
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Section -->
+      <div id="section-image" class="section hidden">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="url">URL</button>
+          <button class="tab-btn" data-tab="local">Local File</button>
+        </div>
+
+        <div class="tab-content active" id="tab-url">
+          <div class="control-group">
+            <input type="url" id="image-url" placeholder="https://example.com/image.jpg">
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-local">
+          <div class="control-group">
+            <div class="file-drop-area" id="drop-area">
+              <p>Click or Drop image here</p>
+              <input type="file" id="image-file" accept="image/*" hidden>
+            </div>
+            <div id="file-info" class="hidden">
+              <span class="filename"></span>
+              <button id="remove-file" class="icon-btn">×</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group preview-group">
+           <div id="image-preview" class="image-preview"></div>
+        </div>
+      </div>
+
+      <!-- Common Styles -->
+      <div id="section-styles" class="section hidden">
+        <div class="control-group">
+          <label for="opacity">Opacity <span id="opacity-val">100%</span></label>
+          <input type="range" id="opacity" min="0" max="100" value="100">
+        </div>
+
+        <div class="control-group">
+          <label for="blur">Blur <span id="blur-val">0px</span></label>
+          <input type="range" id="blur" min="0" max="20" value="0">
+        </div>
+
+        <div id="image-options" class="hidden">
+           <div class="control-group row">
+             <label class="checkbox-label">
+               <input type="checkbox" id="bg-fixed" checked>
+               Fixed Position
+             </label>
+             <select id="bg-size">
+               <option value="cover">Cover</option>
+               <option value="contain">Contain</option>
+               <option value="auto">Auto</option>
+             </select>
+           </div>
+           
+           <div class="control-group row">
+             <label class="checkbox-label">
+               <input type="checkbox" id="bg-repeat">
+               Repeat
+             </label>
+           </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <button id="reset-btn" class="secondary">Reset</button>
+      <button id="save-btn" class="primary">Save</button>
+    </footer>
+    
+    <div id="status-msg" class="status-msg hidden">Saved!</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
